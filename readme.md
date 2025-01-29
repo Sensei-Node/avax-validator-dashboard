@@ -2,6 +2,8 @@
 
 This is a simple Flask web application that monitors the uptime of multiple Avalanche validators using data from Avascan.
 
+![dashboard](static/dashboard.png)
+
 ## Features
 - Fetches validator uptime dynamically
 - Displays validator details including:
