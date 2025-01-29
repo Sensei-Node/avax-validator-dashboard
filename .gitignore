@@ -3,7 +3,7 @@ __pycache__/
 *.pyo
 *.log
 .env
-venv/
+env/
 .DS_Store
 instance/
 config.py
