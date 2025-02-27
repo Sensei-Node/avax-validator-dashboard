@@ -5,6 +5,7 @@ app = Flask(__name__)
 
 # List of Validators (Add more Node IDs here)
 VALIDATORS = [
+    # "NodeID-F3SZA2ZNdRjTBe3GYyRQFDaCXB3DyaZQQ", # Sensei (does not appear on the dashboard because it is inactive)
     "NodeID-4G6U36ehMMYjJ3C9gzLmYRzQFho8c4U4w",
     "NodeID-2jz2UxTN4JBu5qxWi4gwtqyQPLizj6Xka",
     "NodeID-BhvvT3sTYTF8Gi6ebafnHyAGLLB1pj6PW",
