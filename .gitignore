@@ -10,3 +10,4 @@ config.py
 *.sqlite3
 *.db
 .venv
+.vercel
