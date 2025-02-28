@@ -5,12 +5,9 @@ app = Flask(__name__)
 
 # List of Validators (Add more Node IDs here)
 VALIDATORS = [
-    # "NodeID-F3SZA2ZNdRjTBe3GYyRQFDaCXB3DyaZQQ", # Sensei (does not appear on the dashboard because it is inactive)
-    "NodeID-4G6U36ehMMYjJ3C9gzLmYRzQFho8c4U4w",
-    "NodeID-2jz2UxTN4JBu5qxWi4gwtqyQPLizj6Xka",
-    "NodeID-BhvvT3sTYTF8Gi6ebafnHyAGLLB1pj6PW",
-    "NodeID-DqggQ5z3g89eJszSnyTWYBejggS4piCsH",
-    "NodeID-4cwQT5hvhnhgYM7kJia4MK5kT8XLVZSNz",
+    "NodeID-F3SZA2ZNdRjTBe3GYyRQFDaCXB3DyaZQQ",  # Sensei 1
+    "NodeID-2Coj79FAu7rPdSdYdJ27CqTr1K2p45gze",  # Sensei 2
+    "NodeID-9Efcx2E5uEHZqZSTWT1jPd8DfEkJaZeGj",  # Sensei 3
 ]
 
 # Construct API Endpoint dynamically
