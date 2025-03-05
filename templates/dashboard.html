@@ -66,7 +66,7 @@
             font-weight: bold;
         }
         .validator-name {
-            font-size: 18px;
+            font-size: 13.5px;
             margin: 0;
         }
         .validator-id {
@@ -227,8 +227,7 @@
                         content += `
                             <div class='validator'>
                                 <div class='validator-header'>
-                                    <p class='validator-name'>${details.name || 'Unknown'}</p>
-                                    <p class='validator-id'>${nodeId}</p>
+                                    <p class='validator-name'>${nodeId}</p>
                                 </div>
                                 <div class='validator-body'>
                                     <div class='validator-detail'>
@@ -286,8 +285,7 @@
                             fallbackContent += `
                                 <div class='validator'>
                                     <div class='validator-header'>
-                                        <p class='validator-name'>${details.name} (SAMPLE DATA)</p>
-                                        <p class='validator-id'>${nodeId}</p>
+                                        <p class='validator-name'>${nodeId} (SAMPLE DATA)</p>
                                     </div>
                                     <div class='validator-body'>
                                         <div class='validator-detail'>
