@@ -65,6 +65,14 @@ def fetch_uptime():
                     "stake_from_delegations": formatted_stake_from_delegations,
                 }
 
+            # Special handling for the specific validator region (Nigeria)
+            if node_id == "NodeID-2Coj79FAu7rPdSdYdJ27CqTr1K2p45gze":
+                ip_info_response = requests.get("https://ipinfo.io/158.255.76.58/json")
+                ip_info_data = ip_info_response.json()
+                city = ip_info_data.get("city", "Unknown")
+                country = "Nigeria"  # Hardcode Nigeria (API doesn't support)
+                uptime_data[node_id]["location"] = f"{city}, {country}"
+
         return uptime_data
 
     except Exception as e:
