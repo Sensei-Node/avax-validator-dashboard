@@ -12,7 +12,7 @@ This is a simple Flask web application that monitors the uptime of multiple Aval
   - Uptime percentage
   - Stake from self
   - Stake from delegations
-- Auto-refresh every 5 minutes
+- Auto-refresh every 10 minutes
 
 ## Installation
 
