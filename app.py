@@ -66,20 +66,48 @@ def fetch_uptime():
                     "stake_from_delegations": formatted_stake_from_delegations,
                 }
 
-            # Special handling for validators region (Nigeria and Brasil)
+            # Handling for validators that not return locations
             if node_id == "NodeID-2Coj79FAu7rPdSdYdJ27CqTr1K2p45gze":
-                ip_info_response = requests.get("https://ipinfo.io/158.255.76.58/json")
-                ip_info_data = ip_info_response.json()
-                city = ip_info_data.get("city", "Unknown")
-                country = "Nigeria"  # Hardcode Nigeria (API doesn't support)
-                uptime_data[node_id]["location"] = f"{city}, {country}"
+                if uptime_data[node_id]["location"] == "Unknown, Unknown":
+                    ip_info_response = requests.get(
+                        "https://ipinfo.io/158.255.76.58/json"
+                    )
+                    ip_info_data = ip_info_response.json()
+                    city = ip_info_data.get("city", "Unknown")
+                    country = "Nigeria"  # Hardcode Nigeria (API doesn't support)
+                    uptime_data[node_id]["location"] = f"{city}, {country}"
 
             elif node_id == "NodeID-9Efcx2E5uEHZqZSTWT1jPd8DfEkJaZeGj":
-                ip_info_response = requests.get("https://ipinfo.io/160.202.130.67/json")
-                ip_info_data = ip_info_response.json()
-                city = ip_info_data.get("city", "Unknown")
-                country = "Brasil"  # Hardcode Brasil (API doesn't support)
-                uptime_data[node_id]["location"] = f"{city}, {country}"
+                if uptime_data[node_id]["location"] == "Unknown, Unknown":
+                    ip_info_response = requests.get(
+                        "https://ipinfo.io/160.202.130.67/json"
+                    )
+                    ip_info_data = ip_info_response.json()
+                    city = ip_info_data.get("city", "Unknown")
+                    country = "Brasil"  # Hardcode Brasil (API doesn't support)
+                    uptime_data[node_id]["location"] = f"{city}, {country}"
+
+            elif node_id == "NodeID-8mirL2rorHYSEbkBxu8TwodvpN29RrNY3":
+                if uptime_data[node_id]["location"] == "Unknown, Unknown":
+                    ip_info_response = requests.get(
+                        "https://ipinfo.io/103.88.234.47/json"
+                    )
+                    ip_info_data = ip_info_response.json()
+                    city = ip_info_data.get("city", "Unknown")
+                    country = "Mexico"  # Hardcode Mexico (API doesn't support)
+                    uptime_data[node_id]["location"] = f"{city}, {country}"
+
+            elif node_id == "NodeID-F3SZA2ZNdRjTBe3GYyRQFDaCXB3DyaZQQ":
+                if uptime_data[node_id]["location"] == "Unknown, Unknown":
+                    ip_info_response = requests.get(
+                        "https://ipinfo.io/186.233.187.26/json"
+                    )
+                    ip_info_data = ip_info_response.json()
+                    city = ip_info_data.get("city", "Unknown")
+                    country = (
+                        "United States"  # Hardcode United States (API doesn't support)
+                    )
+                    uptime_data[node_id]["location"] = f"{city}, {country}"
 
         return uptime_data
 
