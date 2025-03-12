@@ -8,6 +8,7 @@ VALIDATORS = [
     "NodeID-F3SZA2ZNdRjTBe3GYyRQFDaCXB3DyaZQQ",  # Sensei 1
     "NodeID-2Coj79FAu7rPdSdYdJ27CqTr1K2p45gze",  # Sensei 2
     "NodeID-9Efcx2E5uEHZqZSTWT1jPd8DfEkJaZeGj",  # Sensei 3
+    "NodeID-8mirL2rorHYSEbkBxu8TwodvpN29RrNY3",  # Sensei 4
 ]
 
 # Construct API Endpoint dynamically
