@@ -98,15 +98,18 @@ def fetch_uptime():
                     uptime_data[node_id]["location"] = f"{city}, {country}"
 
             elif node_id == "NodeID-F3SZA2ZNdRjTBe3GYyRQFDaCXB3DyaZQQ":
-                if uptime_data[node_id]["location"] == "Unknown, Unknown":
+                if uptime_data[node_id]["location"]:
                     ip_info_response = requests.get(
-                        "https://ipinfo.io/186.233.187.26/json"
+                        "https://ipinfo.io/160.202.130.45/json"
                     )
                     ip_info_data = ip_info_response.json()
                     city = ip_info_data.get("city", "Unknown")
-                    country = (
-                        "United States"  # Hardcode United States (API doesn't support)
-                    )
+                    country = "Brasil"  # Hardcode Brasil again (API doesn't support)
+                    # Hardcode specified values
+                    if city != "Unknown":
+                        city = "São Paulo"
+                    if country != "Unknown":
+                        country = "Brasil"
                     uptime_data[node_id]["location"] = f"{city}, {country}"
 
         return uptime_data
