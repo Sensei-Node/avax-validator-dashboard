@@ -5,7 +5,7 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ./avax-validator-dashboard:/app
+      - ./web:/app
     logging:
       options:
         max-size: "1g"
