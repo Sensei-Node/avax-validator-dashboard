@@ -18,6 +18,9 @@ API_ENDPOINT = (
     + "&status=active"
 )
 
+# Cache for last known uptime values
+uptime_cache = {validator: 0.0 for validator in VALIDATORS}
+
 
 def fetch_uptime():
     try:
@@ -41,11 +44,14 @@ def fetch_uptime():
             stake_from_delegations = item.get("stake", {}).get("fromDelegations", "N/A")
 
             # Processing values to avoid errors in conversions
-            formatted_uptime = (
-                round(avg_uptime * 100, 2)
-                if isinstance(avg_uptime, (int, float))
-                else "N/A"
-            )
+            # Use cached value if `avg_uptime` is N/A, otherwise update cache
+            if isinstance(avg_uptime, (int, float)):
+                formatted_uptime = round(avg_uptime * 100, 2)
+                if node_id:
+                    uptime_cache[node_id] = formatted_uptime
+            else:
+                formatted_uptime = uptime_cache.get(node_id, 0.0)
+            
             formatted_stake_from_self = (
                 round(int(stake_from_self) / 1_000_000_000, 2)
                 if stake_from_self
