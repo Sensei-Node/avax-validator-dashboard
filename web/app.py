@@ -33,7 +33,6 @@ def fetch_uptime():
         for item in data.get("items", []):
             node_id = item.get("nodeId")
             node_info = item.get("node", {})
-            name = item.get("name", "⚠️ Unknown")
             
             avg_uptime = node_info.get("uptime", {}).get("avg", "N/A")
             location_data = node_info.get("location", {})
@@ -92,7 +91,6 @@ def fetch_uptime():
             if node_id:
                 uptime_data[node_id] = {
                     "uptime": formatted_uptime,
-                    "name": name,
                     "location": location,
                     "stake_from_self": formatted_stake_from_self,
                     "stake_from_delegations": formatted_stake_from_delegations,
