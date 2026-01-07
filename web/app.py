@@ -1,6 +1,7 @@
-from flask import Flask, render_template, jsonify
-import requests
 import pycountry
+import requests
+
+from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
 
