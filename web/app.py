@@ -1,6 +1,7 @@
 import pycountry
 import requests
 
+from datetime import datetime
 from flask import Flask, render_template, jsonify
 
 app = Flask(__name__)
@@ -34,18 +35,17 @@ def fetch_uptime():
         for item in data.get("items", []):
             node_id = item.get("nodeId")
             node_info = item.get("node", {})
-            
-            avg_uptime = node_info.get("uptime", {}).get("avg", "N/A")
             location_data = node_info.get("location", {})
             location_city = location_data.get("city", "")
             location_country = location_data.get("country", "")
             node_ip = node_info.get("ip", "")
-            
-            stake_from_self = item.get("stake", {}).get("fromSelf", "N/A")
-            stake_from_delegations = item.get("stake", {}).get("fromDelegations", "N/A")
+            avg_uptime = node_info.get("uptime", {}).get("avg", "Unknown")
+            end_time = item.get("endTime", "Unknown")
+            stake_from_self = item.get("stake", {}).get("fromSelf", "Unknown")
+            stake_from_delegations = item.get("stake", {}).get("fromDelegations", "Unknown")
 
             # Processing values to avoid errors in conversions
-            # Use cached value if `avg_uptime` is N/A, otherwise update cache
+            # Use cached value if `avg_uptime` is unknown, otherwise update cache
             if isinstance(avg_uptime, (int, float)):
                 formatted_uptime = round(avg_uptime * 100, 2)
                 if node_id:
@@ -56,12 +56,12 @@ def fetch_uptime():
             formatted_stake_from_self = (
                 round(int(stake_from_self) / 1_000_000_000, 2)
                 if stake_from_self
-                else "N/A"
+                else "Unknown"
             )
             formatted_stake_from_delegations = (
                 round(int(stake_from_delegations) / 1_000_000_000, 2)
                 if stake_from_delegations
-                else "N/A"
+                else "Unknown"
             )
 
             # Determine location: use API data or fallback to IP geolocation
@@ -89,10 +89,21 @@ def fetch_uptime():
             else:
                 location = "Unknown, Unknown"
 
+            # Format expiration date
+            if end_time != "Unknown":
+                try:
+                    dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+                    formatted_end_time = dt.strftime("%b %d, %Y at %H:%M UTC")
+                except Exception:
+                    formatted_end_time = "Unknown"
+            else:
+                formatted_end_time = "Unknown"
+
             if node_id:
                 uptime_data[node_id] = {
-                    "uptime": formatted_uptime,
                     "location": location,
+                    "uptime": formatted_uptime,
+                    "expiration_date": formatted_end_time,
                     "stake_from_self": formatted_stake_from_self,
                     "stake_from_delegations": formatted_stake_from_delegations,
                 }
