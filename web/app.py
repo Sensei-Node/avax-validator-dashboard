@@ -4,7 +4,6 @@ import requests
 from datetime import datetime
 from flask import Flask, render_template, jsonify
 
-app = Flask(__name__)
 
 # List of Validators (Add more Node IDs here)
 VALIDATORS = [
@@ -23,9 +22,21 @@ API_ENDPOINT = (
     + "&status=active"
 )
 
+# Offset to convert ASCII letters to Regional Indicator Symbols (flag emojis)
+REGIONAL_INDICATOR_OFFSET = 127397
+
+
+app = Flask(__name__)
+
 # Cache for last known uptime values
 uptime_cache = {validator: 0.0 for validator in VALIDATORS}
 
+
+def country_code_to_flag(country_code):
+    """Convert ISO country code to flag emoji."""
+    if not country_code or len(country_code) != 2:
+        return ""
+    return "".join(chr(ord(c) + REGIONAL_INDICATOR_OFFSET) for c in country_code.upper())
 
 def fetch_uptime():
     try:
@@ -67,7 +78,14 @@ def fetch_uptime():
             )
 
             # Determine location: use API data or fallback to IP geolocation
+            country_code = ""
             if location_city and location_country:
+                # Try to get country code from country name
+                try:
+                    country_obj = pycountry.countries.search_fuzzy(location_country)[0]
+                    country_code = country_obj.alpha_2
+                except (LookupError, AttributeError, IndexError):
+                    country_code = ""
                 location = f"{location_city}, {location_country}"
             elif node_ip:
                 try:
@@ -85,11 +103,18 @@ def fetch_uptime():
                             country = country_code
                     else:
                         country = "Unknown"
+                        country_code = ""
                     location = f"{city}, {country}"
                 except Exception:
                     location = "Unknown, Unknown"
+                    country_code = ""
             else:
                 location = "Unknown, Unknown"
+                country_code = ""
+            
+            flag_emoji = country_code_to_flag(country_code)
+            if flag_emoji:
+                location = f"{location} {flag_emoji}"
 
             # Format expiration date
             if end_time != "Unknown":
