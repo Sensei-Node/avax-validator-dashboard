@@ -93,7 +93,7 @@ def fetch_uptime():
             if end_time != "Unknown":
                 try:
                     dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-                    formatted_end_time = dt.strftime("%b %d, %Y at %H:%M UTC")
+                    formatted_end_time = dt.strftime("%b %d, %Y %H:%M UTC")
                 except Exception:
                     formatted_end_time = "Unknown"
             else:
