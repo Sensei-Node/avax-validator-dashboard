@@ -234,6 +234,10 @@
                                         <span class='${getUptimeClass(details.uptime)}'>${details.uptime}%</span>
                                     </div>
                                     <div class='validator-detail'>
+                                        <span class='detail-label'>Expiration Date:</span>
+                                        <span>${details.expiration_date || 'Unknown'}</span>
+                                    </div>
+                                    <div class='validator-detail'>
                                         <span class='detail-label'>Stake from Self:</span>
                                         <span>${formatNumber(selfStake)} AVAX</span>
                                     </div>
