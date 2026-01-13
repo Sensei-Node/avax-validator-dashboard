@@ -69,6 +69,13 @@
             font-size: 13.5px;
             margin: 0;
         }
+        .validator-id a {
+            color: white;
+            text-decoration: none;
+        }
+        .validator-id a:hover {
+            text-decoration: underline;
+        }
         .validator-body {
             padding: 15px;
         }
@@ -203,7 +210,7 @@
                             content += `
                                 <div class='validator'>
                                     <div class='validator-header'>
-                                        <p class='validator-id'>Node ID: ${nodeId}</p>
+                                        <p class='validator-id'><a href='https://avascan.info/staking/validator/${nodeId}' target='_blank'>${nodeId}</a></p>
                                     </div>
                                     <div class='validator-body'>
                                         <div class='validator-detail'>
@@ -222,7 +229,7 @@
                         content += `
                             <div class='validator'>
                                 <div class='validator-header'>
-                                    <p class='validator-id'>${nodeId}</p>
+                                    <p class='validator-id'><a href='https://avascan.info/staking/validator/${nodeId}' target='_blank'>${nodeId}</a></p>
                                 </div>
                                 <div class='validator-body'>
                                     <div class='validator-detail'>
@@ -284,7 +291,7 @@
                             fallbackContent += `
                                 <div class='validator'>
                                     <div class='validator-header'>
-                                        <p class='validator-id'>${nodeId} (SAMPLE DATA)</p>
+                                        <p class='validator-id'><a href='https://avascan.info/staking/validator/${nodeId}' target='_blank'>${nodeId}</a> (SAMPLE DATA)</p>
                                     </div>
                                     <div class='validator-body'>
                                         <div class='validator-detail'>
