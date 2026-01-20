@@ -3,12 +3,14 @@ services:
     build: .
     restart: unless-stopped
     ports:
-      - 5000:5000
-    volumes:
-      - .:/app
+      - "5000:5000"
     logging:
       options:
-        max-size: "1g"
+        max-size: "100m"
+    deploy:
+      resources:
+        limits:
+          memory: 512M
   nginx:
     image: nginx:latest
     restart: unless-stopped
