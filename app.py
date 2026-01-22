@@ -1,8 +1,8 @@
 import json
+from datetime import datetime
+
 import pycountry
 import requests
-
-from datetime import datetime
 from flask import Flask, render_template, jsonify
 
 
@@ -36,105 +36,139 @@ def country_code_to_flag(country_code):
         return ""
     return "".join(chr(ord(c) + REGIONAL_INDICATOR_OFFSET) for c in country_code.upper())
 
-def fetch_uptime():
+
+def get_country_code_from_name(country_name):
+    """Get ISO country code from country name."""
     try:
-        headers = {"accept": "application/json"}
-        response = requests.get(API_ENDPOINT, headers=headers)
-        data = response.json()
+        country_obj = pycountry.countries.search_fuzzy(country_name)[0]
+        return country_obj.alpha_2
+    except (LookupError, AttributeError, IndexError):
+        return ""
 
-        uptime_data = {}
-        for item in data.get("items", []):
-            node_id = item.get("nodeId")
-            node_info = item.get("node", {})
-            location_data = node_info.get("location", {})
-            location_city = location_data.get("city", "")
-            location_country = location_data.get("country", "")
-            node_ip = node_info.get("ip", "")
-            avg_uptime = node_info.get("uptime", {}).get("avg", "Unknown")
-            end_time = item.get("endTime", "Unknown")
-            stake_from_self = item.get("stake", {}).get("fromSelf", "Unknown")
-            stake_from_delegations = item.get("stake", {}).get("fromDelegations", "Unknown")
 
-            # Processing values to avoid errors in conversions
-            # Use cached value if `avg_uptime` is unknown, otherwise update cache
-            if isinstance(avg_uptime, (int, float)):
-                formatted_uptime = round(avg_uptime * 100, 2)
-                if node_id:
-                    uptime_cache[node_id] = formatted_uptime
-            else:
-                formatted_uptime = uptime_cache.get(node_id, 0.0)
-            
-            formatted_stake_from_self = (
-                round(int(stake_from_self) / 1_000_000_000, 2)
-                if stake_from_self
-                else "Unknown"
-            )
-            formatted_stake_from_delegations = (
-                round(int(stake_from_delegations) / 1_000_000_000, 2)
-                if stake_from_delegations
-                else "Unknown"
-            )
-
-            # Determine location: use API data or fallback to IP geolocation
+def get_location_from_ip(node_ip):
+    """Fetch location data using IP geolocation service."""
+    try:
+        ip_info_response = requests.get(
+            f"https://ipinfo.io/{node_ip}/json",
+            timeout=IP_GEOLOCATION_TIMEOUT_SECONDS
+        )
+        ip_info_data = ip_info_response.json()
+        city = ip_info_data.get("city", "Unknown")
+        country_code = ip_info_data.get("country", "Unknown")
+        
+        if country_code != "Unknown":
+            try:
+                country = pycountry.countries.get(alpha_2=country_code).name
+            except (AttributeError, KeyError):
+                country = country_code
+        else:
+            country = "Unknown"
             country_code = ""
-            if location_city and location_country:
-                # Try to get country code from country name
-                try:
-                    country_obj = pycountry.countries.search_fuzzy(location_country)[0]
-                    country_code = country_obj.alpha_2
-                except (LookupError, AttributeError, IndexError):
-                    country_code = ""
-                location = f"{location_city}, {location_country}"
-            elif node_ip:
-                try:
-                    ip_info_response = requests.get(
-                        f"https://ipinfo.io/{node_ip}/json",
-                        timeout=IP_GEOLOCATION_TIMEOUT_SECONDS
-                    )
-                    ip_info_data = ip_info_response.json()
-                    city = ip_info_data.get("city", "Unknown")
-                    country_code = ip_info_data.get("country", "Unknown")
-                    if country_code != "Unknown":
-                        try:
-                            country = pycountry.countries.get(alpha_2=country_code).name
-                        except (AttributeError, KeyError):
-                            country = country_code
-                    else:
-                        country = "Unknown"
-                        country_code = ""
-                    location = f"{city}, {country}"
-                except Exception:
-                    location = "Unknown, Unknown"
-                    country_code = ""
-            else:
-                location = "Unknown, Unknown"
-                country_code = ""
-            
-            flag_emoji = country_code_to_flag(country_code)
-            if flag_emoji:
-                location = f"{location} {flag_emoji}"
+        
+        return f"{city}, {country}", country_code
+    except Exception:
+        return "Unknown, Unknown", ""
 
-            # Format expiration date
-            if end_time != "Unknown":
-                try:
-                    dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
-                    formatted_end_time = dt.strftime("%b %d, %Y %H:%M UTC")
-                except Exception:
-                    formatted_end_time = "Unknown"
-            else:
-                formatted_end_time = "Unknown"
 
-            if node_id:
-                uptime_data[node_id] = {
-                    "location": location,
-                    "uptime": formatted_uptime,
-                    "expiration_date": formatted_end_time,
-                    "stake_from_self": formatted_stake_from_self,
-                    "stake_from_delegations": formatted_stake_from_delegations,
-                }
+def format_location(location_city, location_country, node_ip):
+    """Determine and format location string with flag emoji."""
+    country_code = ""
+    
+    if location_city and location_country:
+        country_code = get_country_code_from_name(location_country)
+        location = f"{location_city}, {location_country}"
+    elif node_ip:
+        location, country_code = get_location_from_ip(node_ip)
+    else:
+        location = "Unknown, Unknown"
+    
+    flag_emoji = country_code_to_flag(country_code)
+    if flag_emoji:
+        location = f"{location} {flag_emoji}"
+    
+    return location
 
+
+def format_uptime(avg_uptime, node_id):
+    """Format uptime percentage, using cache if unavailable."""
+    if isinstance(avg_uptime, (int, float)):
+        formatted_uptime = round(avg_uptime * 100, 2)
+        if node_id:
+            uptime_cache[node_id] = formatted_uptime
+        return formatted_uptime
+    else:
+        return uptime_cache.get(node_id, 0.0)
+
+
+def format_stake(stake_value):
+    """Convert stake from nAVAX to AVAX."""
+    if stake_value and stake_value != "Unknown":
+        return round(int(stake_value) / 1_000_000_000, 2)
+    return "Unknown"
+
+
+def format_expiration_date(end_time):
+    """Format ISO datetime to readable string."""
+    if end_time == "Unknown":
+        return "Unknown"
+    
+    try:
+        dt = datetime.fromisoformat(end_time.replace('Z', '+00:00'))
+        return dt.strftime("%b %d, %Y %H:%M UTC")
+    except Exception:
+        return "Unknown"
+
+
+def parse_validator_item(item):
+    """Parse a single validator item and return formatted data."""
+    node_id = item.get("nodeId")
+    if not node_id:
+        return None, None
+    
+    node_info = item.get("node", {})
+    location_data = node_info.get("location", {})
+    
+    location_city = location_data.get("city", "")
+    location_country = location_data.get("country", "")
+    node_ip = node_info.get("ip", "")
+    avg_uptime = node_info.get("uptime", {}).get("avg", "Unknown")
+    end_time = item.get("endTime", "Unknown")
+    stake_from_self = item.get("stake", {}).get("fromSelf", "Unknown")
+    stake_from_delegations = item.get("stake", {}).get("fromDelegations", "Unknown")
+    
+    formatted_data = {
+        "location": format_location(location_city, location_country, node_ip),
+        "uptime": format_uptime(avg_uptime, node_id),
+        "expiration_date": format_expiration_date(end_time),
+        "stake_from_self": format_stake(stake_from_self),
+        "stake_from_delegations": format_stake(stake_from_delegations),
+    }
+    
+    return node_id, formatted_data
+
+
+def fetch_validator_data():
+    """Fetch raw validator data from Avascan API."""
+    headers = {"accept": "application/json"}
+    response = requests.get(API_ENDPOINT, headers=headers)
+    response.raise_for_status()
+    return response.json()
+
+
+def fetch_uptime():
+    """Fetch and format validator uptime data."""
+    try:
+        data = fetch_validator_data()
+        uptime_data = {}
+        
+        for item in data.get("items", []):
+            node_id, formatted_data = parse_validator_item(item)
+            if node_id and formatted_data:
+                uptime_data[node_id] = formatted_data
+        
         return uptime_data
-
+    
     except Exception as e:
         return {validator: f"Error {e}" for validator in VALIDATORS}
 
@@ -143,10 +177,12 @@ def fetch_uptime():
 def index():
     return render_template("dashboard.html")
 
+
 @app.route("/data")
 def data():
     uptime_data = fetch_uptime()
     return jsonify(uptime_data)
+
 
 @app.route("/config")
 def get_config():
