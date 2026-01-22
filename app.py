@@ -12,13 +12,11 @@ with open('config.json', 'r') as config_file:
 VALIDATORS = config['validators']
 REFRESH_INTERVAL_MINUTES = config['refresh_interval_minutes']
 REFRESH_INTERVAL_MS = REFRESH_INTERVAL_MINUTES * 60 * 1000
-
 API_ENDPOINT = (
     "https://api.avascan.info/v2/network/mainnet/staking/validations?nodeIds="
     + ",".join(VALIDATORS)
     + "&status=active"
 )
-
 # Offset to convert ASCII letters to Regional Indicator Symbols (flag emojis)
 REGIONAL_INDICATOR_OFFSET = 127397
 IP_GEOLOCATION_TIMEOUT_SECONDS = 5
