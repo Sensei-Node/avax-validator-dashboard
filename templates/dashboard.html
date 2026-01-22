@@ -151,6 +151,10 @@
         Made with ❤️ by <a href="https://senseinode.com" target="_blank">SenseiNode</a>
         <img src="static/sensei.png" alt="Logo" class="footer-logo" style="width: 35px; height: auto; margin-left: 10px; top: 8px; left: -2px; position: relative;">
     <script>
+        const DEFAULT_REFRESH_INTERVAL_MS = 600000; // 10 minutes
+        const UPTIME_THRESHOLD_HIGH = 95; // Uptime >= UPTIME_THRESHOLD_HIGH% is considered high
+        const UPTIME_THRESHOLD_MEDIUM = 90; // Uptime >= UPTIME_THRESHOLD_MEDIUM% is considered medium
+        
         let isLoading = true;
         
         function formatNumber(num) {
@@ -158,8 +162,8 @@
         }
         
         function getUptimeClass(uptime) {
-            if (uptime >= 95) return 'uptime-high';
-            if (uptime >= 90) return 'uptime-medium';
+            if (uptime >= UPTIME_THRESHOLD_HIGH) return 'uptime-high';
+            if (uptime >= UPTIME_THRESHOLD_MEDIUM) return 'uptime-medium';
             return 'uptime-low';
         }
         
@@ -333,7 +337,20 @@
 
         $(document).ready(function() {
             fetchData();
-            setInterval(fetchData, 600000); // Refresh every 10 minutes
+            
+            $.ajax({
+                url: window.location.pathname.endsWith('/') ? 'config' : '/config',
+                type: "GET",
+                dataType: "json",
+                success: function(config) {
+                    const refreshInterval = config.refresh_interval_ms || DEFAULT_REFRESH_INTERVAL_MS;
+                    setInterval(fetchData, refreshInterval);
+                },
+                error: function() {
+                    // Fallback to default if config fetch fails
+                    setInterval(fetchData, DEFAULT_REFRESH_INTERVAL_MS);
+                }
+            });
         });
     </script>
 </body>

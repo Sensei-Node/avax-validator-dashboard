@@ -1,3 +1,4 @@
+import json
 import pycountry
 import requests
 
@@ -5,17 +6,13 @@ from datetime import datetime
 from flask import Flask, render_template, jsonify
 
 
-# List of Validators (Add more Node IDs here)
-VALIDATORS = [
-    "NodeID-F3SZA2ZNdRjTBe3GYyRQFDaCXB3DyaZQQ",  # Sensei 1
-    "NodeID-2Coj79FAu7rPdSdYdJ27CqTr1K2p45gze",  # Sensei 2
-    "NodeID-9Efcx2E5uEHZqZSTWT1jPd8DfEkJaZeGj",  # Sensei 3
-    "NodeID-8mirL2rorHYSEbkBxu8TwodvpN29RrNY3",  # Sensei 4
-    "NodeID-3f36M2b7dsAQXELyNeAhcGU5LsV86fNGC",
-    "NodeID-LRMPTwN2c9PQDeYNJaTpJHbLLQbXauwBs",
-]
+with open('config.json', 'r') as config_file:
+    config = json.load(config_file)
 
-# Construct API Endpoint dynamically
+VALIDATORS = config['validators']
+REFRESH_INTERVAL_MINUTES = config['refresh_interval_minutes']
+REFRESH_INTERVAL_MS = REFRESH_INTERVAL_MINUTES * 60 * 1000
+
 API_ENDPOINT = (
     "https://api.avascan.info/v2/network/mainnet/staking/validations?nodeIds="
     + ",".join(VALIDATORS)
@@ -24,6 +21,7 @@ API_ENDPOINT = (
 
 # Offset to convert ASCII letters to Regional Indicator Symbols (flag emojis)
 REGIONAL_INDICATOR_OFFSET = 127397
+IP_GEOLOCATION_TIMEOUT_SECONDS = 5
 
 
 app = Flask(__name__)
@@ -91,7 +89,7 @@ def fetch_uptime():
                 try:
                     ip_info_response = requests.get(
                         f"https://ipinfo.io/{node_ip}/json",
-                        timeout=5
+                        timeout=IP_GEOLOCATION_TIMEOUT_SECONDS
                     )
                     ip_info_data = ip_info_response.json()
                     city = ip_info_data.get("city", "Unknown")
@@ -145,11 +143,14 @@ def fetch_uptime():
 def index():
     return render_template("dashboard.html")
 
-
 @app.route("/data")
 def data():
     uptime_data = fetch_uptime()
     return jsonify(uptime_data)
+
+@app.route("/config")
+def get_config():
+    return jsonify({"refresh_interval_ms": REFRESH_INTERVAL_MS})
 
 
 if __name__ == "__main__":
