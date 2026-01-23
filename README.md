@@ -1,86 +1,47 @@
 # Avalanche Validator Dashboard
 
-This is a simple Flask web application that monitors the uptime of multiple Avalanche validators using data from Avascan.
+A simple Flask dashboard to monitor multiple Avalanche validators using the Avascan API.
 
 ![dashboard](static/dashboard.png)
 
-## Features
-- Fetches validator uptime dynamically
-- Displays validator details including:
-  - Name
-  - Location
-  - Uptime percentage
-  - Stake from self
-  - Stake from delegations
-- Auto-refresh every 10 minutes
+## Prerequisites
+- Python 3.7+ or Docker (with Compose)
 
-## Installation
+## Quick Start
 
-### Prerequisites
-- Python 3.7+
-- pip
-
-### Clone the repository
-```shell
-git clone https://github.com/PixelNoob/avax-validator-dashboard.git
-```
-
-Go to the project:
-
-```shell
-cd avalanche-validator-dashboard
-```
-
-### Install dependencies
-
-Create your `.venv` folder and use:
+1. Clone the repository:
 ```sh
+git clone https://github.com/Sensei-Node/avax-validator-dashboard.git
+cd avax-validator-dashboard
+```
+
+2. Edit `config.json` to set your validator node IDs and refresh interval.
+3. Run with Python or Docker:
+
+### Python
+```sh
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# Install dependencies
 pip install -r requirements.txt
-```
 
-## Usage
-
-### Run the Flask App
-```sh
+# Run the app
 python app.py
+
+# Open http://localhost:5000
 ```
 
-or 
-
+### Docker
 ```sh
-python3 app.py
-```
+docker compose up -d
 
-### Open in browser
-
-Once the server is running, open it locally:
-```
-http://127.0.0.1:5000/
-```
-
-## Project structure
-
-```
-/avax-validator-dashboard/
-├── app.py                # Main Flask application
-├── requirements.txt      # Required dependencies
-├── static/               # Static files (e.g., favicon)
-│   ├── avax.ico          # Avax favicon
-│   ├── sensei.png        # SenseiNode logo
-│   ├── dashboard.png     # Dashboard image example
-├── templates/            # HTML templates
-│   ├── dashboard.html    # Main dashboard UI
-└── README.md             # Project documentation
-```
-
-## API endpoint used
-This app fetches data from:
-```
-https://api.avascan.info/v2/network/mainnet/staking/validations?nodeIds=<NODE_IDS>&status=active
+# Open http://localhost:5000
 ```
 
 ## Contributing
-Feel free to add new features through an issue. PRs are welcome! 🚀
+PRs welcome! 🚀
 
 ---
-# Made with ❤️ by Avalanche Node Operators
+Made with ❤️ by [SenseiNode](https://senseinode.com)
