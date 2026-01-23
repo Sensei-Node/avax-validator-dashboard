@@ -1,25 +1,14 @@
-# Use the official Python image from the Docker Hub
 FROM python:3.14.2-slim
 
-# Set the working directory inside the container
 WORKDIR /app
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 
-# Copy the requirements file into the container
-COPY ./web/requirements.txt /app/
-
-# Install any dependencies from the requirements file
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code into the container
-COPY ./web /app/
+COPY . .
 
-# Expose the port the app will run on
+USER appuser
+
 EXPOSE 5000
-
-# Set the environment variable for Flask
-ENV FLASK_APP=app.py
-
-# Command to run the Flask app
-CMD ["flask", "run", "--host=0.0.0.0"]
-
-
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "app:app"]

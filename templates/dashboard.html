@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avax Validator Dashboard</title>
+    <link rel="icon" type="image/ico" href="static/avax.ico"/>
+    <link rel="stylesheet" href="static/dashboard.css">
+    <script 
+        src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+        crossorigin="anonymous">
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Validator Uptime Dashboard</h1>
+        </div>
+        <div id="error-container"></div>
+        <div id="loading" class="loading">
+            <div class="loading-spinner"></div>
+        </div>
+        <div id="validators" class="validators-grid"></div>
+    </div>
+    <div class="footer">
+        Made with ❤️ by <a href="https://senseinode.com" target="_blank">SenseiNode</a>
+        <img src="static/sensei.png" alt="Logo" class="footer-logo">
+    </div>
+    <script src="static/dashboard.js"></script>
+</body>
+</html>
