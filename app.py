@@ -13,7 +13,7 @@ VALIDATORS = config['validators']
 REFRESH_INTERVAL_MINUTES = config['refresh_interval_minutes']
 REFRESH_INTERVAL_MS = REFRESH_INTERVAL_MINUTES * 60 * 1000
 API_ENDPOINT = (
-    "https://api.avascan.info/v2/network/mainnet/staking/validations?nodeIds="
+    "https://api.routescan.io/v2/network/mainnet/staking/validations?nodeIds="
     + ",".join(VALIDATORS)
     + "&status=active"
 )
