@@ -53,24 +53,16 @@ function fetchData() {
                 return;
             }
             
+            // Check if backend returned an error string instead of validator data
+            const firstNodeId = Object.keys(data)[0];
+            if (typeof data[firstNodeId] === 'string') {
+                showError("API Error: Unable to fetch latest validator data.");
+                setLoading(false);
+                return;
+            }
+            
             Object.keys(data).forEach(function(nodeId) {
                 let details = data[nodeId];
-                
-                // Handle case where details might be a string
-                if (typeof details === 'string') {
-                    content += `
-                        <div class='validator'>
-                            <div class='validator-header'>
-                                <p class='validator-id'><a href='https://avascan.info/staking/validator/${nodeId}' target='_blank'>${nodeId}</a></p>
-                            </div>
-                            <div class='validator-body'>
-                                <div class='validator-detail'>
-                                    <span>Status: ${details}</span>
-                                </div>
-                            </div>
-                        </div>`;
-                    return;
-                }
                 
                 // Calculate total stake - ensure values are numbers
                 const selfStake = parseFloat(details.stake_from_self) || 0;
