@@ -53,14 +53,6 @@ function fetchData() {
                 return;
             }
             
-            // Check if backend returned an error string instead of validator data
-            const firstNodeId = Object.keys(data)[0];
-            if (typeof data[firstNodeId] === 'string') {
-                showError("API Error: Unable to fetch latest validator data.");
-                setLoading(false);
-                return;
-            }
-            
             Object.keys(data).forEach(function(nodeId) {
                 let details = data[nodeId];
                 
@@ -107,7 +99,7 @@ function fetchData() {
         },
         error: function(xhr, status, error) {
             console.error("Error details:", xhr, status, error);
-            showError("Failed to fetch validator data. Please try again.");
+            showError("API Error: Unable to fetch latest validator data.");
             
             // If we have no data yet, show sample data as fallback
             if ($("#validators").children().length === 0) {
