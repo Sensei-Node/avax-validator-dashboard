@@ -53,14 +53,6 @@ function fetchData() {
                 return;
             }
             
-            // Check if backend returned an error string instead of validator data
-            const firstNodeId = Object.keys(data)[0];
-            if (typeof data[firstNodeId] === 'string') {
-                showError("API Error: Unable to fetch latest validator data.");
-                setLoading(false);
-                return;
-            }
-            
             Object.keys(data).forEach(function(nodeId) {
                 let details = data[nodeId];
                 
@@ -107,66 +99,7 @@ function fetchData() {
         },
         error: function(xhr, status, error) {
             console.error("Error details:", xhr, status, error);
-            showError("Failed to fetch validator data. Please try again.");
-            
-            // If we have no data yet, show sample data as fallback
-            if ($("#validators").children().length === 0) {
-                const fallbackData = {
-                    "NodeID-F3SZA2ZNdRjTBe3GYyRQFDaCXB3DyaZQQ": {
-                        "name": "Sample Validator 1",
-                        "location": "New York, USA",
-                        "uptime": 99.8,
-                        "stake_from_self": 2000,
-                        "stake_from_delegations": 5000
-                    },
-                    "NodeID-C6MR4QwFVyf7vxttwLFbxopJrD5ce4Mwv": {
-                        "name": "Sample Validator 2",
-                        "location": "London, UK",
-                        "uptime": 98.5,
-                        "stake_from_self": 1500,
-                        "stake_from_delegations": 3500
-                    }
-                };
-                
-                let fallbackContent = "";
-                Object.keys(fallbackData).forEach(function(nodeId) {
-                    let details = fallbackData[nodeId];
-                    fallbackContent += `
-                        <div class='validator'>
-                            <div class='validator-header'>
-                                <p class='validator-id'><a href='https://avascan.info/staking/validator/${nodeId}' target='_blank'>${nodeId}</a> (SAMPLE DATA)</p>
-                            </div>
-                            <div class='validator-body'>
-                                <div class='validator-detail'>
-                                    <span class='detail-label'>Location:</span>
-                                    <span>${details.location}</span>
-                                </div>
-                                <div class='validator-detail'>
-                                    <span class='detail-label'>Uptime:</span>
-                                    <span class='${getUptimeClass(details.uptime)}'>${details.uptime}%</span>
-                                </div>
-                                <div class='validator-detail'>
-                                    <span class='detail-label'>Stake from Self:</span>
-                                    <span>${formatNumber(details.stake_from_self)} AVAX</span>
-                                </div>
-                                <div class='validator-detail'>
-                                    <span class='detail-label'>Stake from Delegations:</span>
-                                    <span>${formatNumber(details.stake_from_delegations)} AVAX</span>
-                                </div>
-                                <div class='validator-detail total-stake'>
-                                    <span class='detail-label'>Total Stake:</span>
-                                    <span>${formatNumber(details.stake_from_self + details.stake_from_delegations)} AVAX</span>
-                                </div>
-                            </div>
-                        </div>`;
-                });
-                
-                $("#validators").html(fallbackContent);
-                $("#error-container").append(
-                    "<div class='error-message' style='background-color: #fff3cd; color: #856404;'>" +
-                    "Showing sample data. The actual data could not be loaded.</div>"
-                );
-            }
+            showError("API Error: Unable to fetch latest validator data.");
         },
         complete: function() {
             setLoading(false);

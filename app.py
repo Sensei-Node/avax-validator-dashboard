@@ -156,19 +156,15 @@ def fetch_validator_data():
 
 def fetch_uptime():
     """Fetch and format validator uptime data."""
-    try:
-        data = fetch_validator_data()
-        uptime_data = {}
-        
-        for item in data.get("items", []):
-            node_id, formatted_data = parse_validator_item(item)
-            if node_id and formatted_data:
-                uptime_data[node_id] = formatted_data
-        
-        return uptime_data
+    data = fetch_validator_data()
+    uptime_data = {}
     
-    except Exception as e:
-        return {validator: f"Error {e}" for validator in VALIDATORS}
+    for item in data.get("items", []):
+        node_id, formatted_data = parse_validator_item(item)
+        if node_id and formatted_data:
+            uptime_data[node_id] = formatted_data
+    
+    return uptime_data
 
 
 @app.route("/")
