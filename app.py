@@ -27,6 +27,8 @@ app = Flask(__name__)
 
 # Cache for last known uptime values
 uptime_cache = {validator: 0.0 for validator in VALIDATORS}
+# Cache for last known IP addresses
+ip_cache = {}
 
 
 def country_code_to_flag(country_code):
@@ -127,23 +129,18 @@ def fetch_node_ips():
         response.raise_for_status()
         peers = response.json().get("result", {}).get("peers", [])
         
-        node_ips = {}
         for peer in peers:
             peer_node_id = peer.get("nodeID")
             ip_port = peer.get("ip")
-            if peer_node_id and ip_port:
+            if peer_node_id in VALIDATORS and ip_port:
                 ip = ip_port.split(":")[0]
-                node_ips[peer_node_id] = ip
-        return node_ips
+                ip_cache[peer_node_id] = ip
     except Exception:
-        return {}
+        pass
 
 
-def parse_validator_item(item, node_ips=None):
+def parse_validator_item(item):
     """Parse a single validator item and return formatted data."""
-    if node_ips is None:
-        node_ips = {}
-        
     node_id = item.get("nodeId")
     if not node_id:
         return None, None
@@ -155,7 +152,7 @@ def parse_validator_item(item, node_ips=None):
     location_country = location_data.get("country", "")
     node_ip = node_info.get("ip", "")
     if not node_ip:
-        node_ip = node_ips.get(node_id, "")
+        node_ip = ip_cache.get(node_id, "")
     avg_uptime = node_info.get("uptime", {}).get("avg", "Unknown")
     end_time = item.get("endTime", "Unknown")
     stake_from_self = item.get("stake", {}).get("fromSelf", "Unknown")
@@ -183,11 +180,11 @@ def fetch_validator_data():
 def fetch_uptime():
     """Fetch and format validator uptime data."""
     data = fetch_validator_data()
-    node_ips = fetch_node_ips()
+    fetch_node_ips()
     uptime_data = {}
     
     for item in data.get("items", []):
-        node_id, formatted_data = parse_validator_item(item, node_ips)
+        node_id, formatted_data = parse_validator_item(item)
         if node_id and formatted_data:
             uptime_data[node_id] = formatted_data
     
