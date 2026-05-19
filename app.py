@@ -12,11 +12,12 @@ with open('config.json', 'r') as config_file:
 VALIDATORS = config['validators']
 REFRESH_INTERVAL_MINUTES = config['refresh_interval_minutes']
 REFRESH_INTERVAL_MS = REFRESH_INTERVAL_MINUTES * 60 * 1000
-API_ENDPOINT = (
+AVASCAN_API_ENDPOINT = (
     "https://api.routescan.io/v2/network/mainnet/staking/validations?nodeIds="
     + ",".join(VALIDATORS)
     + "&status=active"
 )
+AVALANCHE_INFO_API_ENDPOINT = "https://api.avax.network/ext/info"
 # Offset to convert ASCII letters to Regional Indicator Symbols (flag emojis)
 REGIONAL_INDICATOR_OFFSET = 127397
 IP_GEOLOCATION_TIMEOUT_SECONDS = 5
@@ -26,6 +27,8 @@ app = Flask(__name__)
 
 # Cache for last known uptime values
 uptime_cache = {validator: 0.0 for validator in VALIDATORS}
+# Cache for last known IP addresses
+ip_cache = {}
 
 
 def country_code_to_flag(country_code):
@@ -118,6 +121,24 @@ def format_expiration_date(end_time):
         return "Unknown"
 
 
+def fetch_node_ips():
+    """Fetch node IP addresses from the Avalanche public API."""
+    try:
+        payload = {"jsonrpc": "2.0", "id": 1, "method": "info.peers"}
+        response = requests.post(AVALANCHE_INFO_API_ENDPOINT, json=payload, timeout=10)
+        response.raise_for_status()
+        peers = response.json().get("result", {}).get("peers", [])
+        
+        for peer in peers:
+            peer_node_id = peer.get("nodeID")
+            ip_port = peer.get("ip")
+            if peer_node_id in VALIDATORS and ip_port:
+                ip = ip_port.split(":")[0]
+                ip_cache[peer_node_id] = ip
+    except Exception:
+        pass
+
+
 def parse_validator_item(item):
     """Parse a single validator item and return formatted data."""
     node_id = item.get("nodeId")
@@ -130,6 +151,8 @@ def parse_validator_item(item):
     location_city = location_data.get("city", "")
     location_country = location_data.get("country", "")
     node_ip = node_info.get("ip", "")
+    if not node_ip:
+        node_ip = ip_cache.get(node_id, "")
     avg_uptime = node_info.get("uptime", {}).get("avg", "Unknown")
     end_time = item.get("endTime", "Unknown")
     stake_from_self = item.get("stake", {}).get("fromSelf", "Unknown")
@@ -149,7 +172,7 @@ def parse_validator_item(item):
 def fetch_validator_data():
     """Fetch raw validator data from Avascan API."""
     headers = {"accept": "application/json"}
-    response = requests.get(API_ENDPOINT, headers=headers)
+    response = requests.get(AVASCAN_API_ENDPOINT, headers=headers)
     response.raise_for_status()
     return response.json()
 
@@ -157,6 +180,7 @@ def fetch_validator_data():
 def fetch_uptime():
     """Fetch and format validator uptime data."""
     data = fetch_validator_data()
+    fetch_node_ips()
     uptime_data = {}
     
     for item in data.get("items", []):
