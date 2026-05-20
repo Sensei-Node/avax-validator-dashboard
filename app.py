@@ -56,12 +56,12 @@ def get_location_from_ip(node_ip):
 
     try:
         ip_info_response = requests.get(
-            f"https://ipinfo.io/{node_ip}/json",
+            f"https://freeipapi.com/api/json/{node_ip}",
             timeout=IP_GEOLOCATION_TIMEOUT_SECONDS
         )
         ip_info_data = ip_info_response.json()
-        city = ip_info_data.get("city", "Unknown")
-        country_code = ip_info_data.get("country", "Unknown")
+        city = ip_info_data.get("cityName", "Unknown")
+        country_code = ip_info_data.get("countryCode", "Unknown")
         
         if country_code != "Unknown":
             try:
