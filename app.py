@@ -29,6 +29,8 @@ app = Flask(__name__)
 uptime_cache = {validator: 0.0 for validator in VALIDATORS}
 # Cache for last known IP addresses
 ip_cache = {}
+# Cache for IP to location data
+location_cache = {}
 
 
 def country_code_to_flag(country_code):
@@ -48,15 +50,18 @@ def get_country_code_from_name(country_name):
 
 
 def get_location_from_ip(node_ip):
-    """Fetch location data using IP geolocation service."""
+    """Fetch location data if not already cached using IP geolocation service."""
+    if node_ip in location_cache:
+        return location_cache[node_ip]
+
     try:
         ip_info_response = requests.get(
-            f"https://ipinfo.io/{node_ip}/json",
+            f"http://ip-api.com/json/{node_ip}",
             timeout=IP_GEOLOCATION_TIMEOUT_SECONDS
         )
         ip_info_data = ip_info_response.json()
         city = ip_info_data.get("city", "Unknown")
-        country_code = ip_info_data.get("country", "Unknown")
+        country_code = ip_info_data.get("countryCode", "Unknown")
         
         if country_code != "Unknown":
             try:
@@ -67,7 +72,9 @@ def get_location_from_ip(node_ip):
             country = "Unknown"
             country_code = ""
         
-        return f"{city}, {country}", country_code
+        result = f"{city}, {country}", country_code
+        location_cache[node_ip] = result
+        return result
     except Exception:
         return "Unknown, Unknown", ""
 
